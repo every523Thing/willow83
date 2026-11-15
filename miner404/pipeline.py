@@ -87,7 +87,7 @@ _TILT_LINES = re.compile(r"if \(flat\.y < 0\.5 \* Math\.max\(flat\.x, flat\.z\)\
 CHECK_SEVERITY = 5  # what the inspector must report before the finished module is rewritten
 POST_PICK_STEPS = 3  # rewrites of the final pick (steps 7-9: rewrite 700/800/900, selection 9070/9080/9090)
 POST_PICK_REWRITE = (SOL, "xhigh")  # the rewrite of the plan's last step
-METAL_PASS = 'const __m404 = new Set(); root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (__m404.has(m)) continue; __m404.add(m); if (m.metalness !== undefined && m.metalness >= 0.25) { m.metalness = 1.0; m.roughness = 0.25; } } });'  # shiny metal at 1.0 metalness, 0.25 roughness
+METAL_PASS = 'const __m404 = new Set(); root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (__m404.has(m)) continue; __m404.add(m); if (m.metalness !== undefined && m.metalness >= 0.25) { m.metalness = 1.0; m.roughness = Math.max(0.25, m.roughness === undefined ? 0.25 : m.roughness); } } });'  # shiny metal at 1.0 metalness; roughness at least 0.25, the model's own when higher
 BRIEF_ID = 9990
 BRIEF_MAX_OUTPUT = 4096
 MEASURED_ASTRA_MAX_OUTPUT = 18000  # a lower cap reserves less, so late rewrites are not refused
@@ -435,7 +435,7 @@ def chain_wrapper(fill: float, glow: float = 0.0, outline_fit: bool = False) -> 
 _EXPORT = re.compile(r"export\s+default\s+function\s*(?:[A-Za-z_$][\w$]*\s*)?\(")
 
 
-SILVER_AFTER = "m.metalness = 1.0; m.roughness = 0.25;"  # the metal pass line the silver guide keys its roughness test on
+SILVER_AFTER = "m.metalness = 1.0; m.roughness = Math.max(0.25, m.roughness === undefined ? 0.25 : m.roughness);"  # the metal pass line the silver guide keys its roughness test on
 FINAL_STRETCH = 1.08  # shorter box axes grow by up to this factor, capped at the plan's fill (1.0 = off)
 _STRETCH_TAIL = "  return root;\n}"
 _STRETCH = """  const __frame404 = new THREE.Group();

@@ -75,7 +75,7 @@ def silver_guide(source):
         return source
     # The final metal pass overwrites authored roughness. Keep the authored value
     # for eligibility only; the metal pass itself runs unchanged.
-    known = "m.metalness = 1.0; m.roughness = 0.25;"
+    known = "m.metalness = 1.0; m.roughness = Math.max(0.25, m.roughness === undefined ? 0.25 : m.roughness);"
     tagged = "__silverRoughness404.set(m, m.roughness); " + known
     source = source.replace(known, tagged, 1)
     source = source.replace(needle, "function __silverBase404(THREE)", 1)
